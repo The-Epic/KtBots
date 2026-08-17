@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory
 import java.net.InetSocketAddress
 import java.util.concurrent.CountDownLatch
 
-class Bot(val name: String, address: InetSocketAddress, val latch: CountDownLatch) : Thread() {
+class Bot(@get:JvmName("botName") val name: String, address: InetSocketAddress, val latch: CountDownLatch) : Thread() {
   private val logger = LoggerFactory.getLogger(this::class.java)
 
   private val client: ClientNetworkSession
