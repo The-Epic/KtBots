@@ -1,6 +1,7 @@
 package xyz.epicebic.ktbots
 
 import org.slf4j.LoggerFactory
+import xyz.epicebic.ktbots.util.parseIp
 import java.net.InetSocketAddress
 import java.util.concurrent.CountDownLatch
 
@@ -16,20 +17,14 @@ fun main(args: Array<String>) {
     .shuffled()
     .toMutableList()
 
-  var ip = options.valueOf(AddressOption)
-  var port = 25565
-  if (ip.contains(":")) {
-    val (address, prt) = ip.split(":")
-    ip = address
-    port = prt.toInt()
-  }
+  val ip = options.valueOf(AddressOption)
+  val address = parseIp(ip)
 
-  val address = InetSocketAddress(ip, port)
   val count = options.valueOf(CountOption)
   val delay = options.valueOf(DelayOption)
   val prefix = options.valueOf(PrefixOption)
 
-  Logger.info("Starting $count bots on $ip:$port")
+  Logger.info("Starting $count bots on $ip")
 
   val latch = CountDownLatch(count)
 
