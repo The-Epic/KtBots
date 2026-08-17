@@ -1,0 +1,5 @@
+<configuration>
+    <logger name="org.geysermc.mcprotocollib.network.netty.PacketCodec" level="WARN"/>
+
+    <root level="INFO"/>
+</configuration>
