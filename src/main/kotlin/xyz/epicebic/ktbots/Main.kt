@@ -1,8 +1,8 @@
 package xyz.epicebic.ktbots
 
 import org.slf4j.LoggerFactory
+import xyz.epicebic.ktbots.util.byteBufferArray
 import xyz.epicebic.ktbots.util.parseIp
-import java.net.InetSocketAddress
 import java.util.concurrent.CountDownLatch
 
 private val Logger = LoggerFactory.getLogger("KtBots")
@@ -23,13 +23,15 @@ fun main(args: Array<String>) {
   val count = options.valueOf(CountOption)
   val delay = options.valueOf(DelayOption)
   val prefix = options.valueOf(PrefixOption)
+  val brand = options.valueOf(BrandOption)
+  val bufferedBrand = byteBufferArray(brand.toByteArray())
 
   Logger.info("Starting $count bots on $ip")
 
   val latch = CountDownLatch(count)
 
   for (idx in 0 until count) {
-    val bot = Bot(subStringName(prefix, nicks.removeFirst()), address, latch)
+    val bot = Bot(subStringName(prefix, nicks.removeFirst()), address, bufferedBrand, latch)
     bot.isDaemon = true
     Bots += bot
     bot.start()

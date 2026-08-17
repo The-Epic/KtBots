@@ -5,7 +5,7 @@ plugins {
 
 val minecraft = "1.21.11"
 group = "xyz.epicebic"
-version = "1.0.0+$minecraft"
+version = "1.1.0+$minecraft"
 
 repositories {
   mavenCentral()

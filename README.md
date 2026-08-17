@@ -11,6 +11,8 @@ Minimum Java Version: 21 \
 # Options
 `-count <count>` Sets the amount of bots to connect. Default: 1
 `-prefix <prefix>` Sets the prefix for all bot accounts to use
+`-delay <delay>` Sets the delay in milliseconds. Default: 50
+`-brand <brand>` Sets the brand for the bots to use. Default: KtBots
 
 # Names
 

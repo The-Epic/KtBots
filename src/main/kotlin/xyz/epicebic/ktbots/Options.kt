@@ -8,3 +8,4 @@ val CountOption: ArgumentAcceptingOptionSpec<Int> = OptionParser.acceptsAll(list
 val AddressOption: ArgumentAcceptingOptionSpec<String> = OptionParser.accepts("ip").withRequiredArg()
 val DelayOption: ArgumentAcceptingOptionSpec<Long> = OptionParser.acceptsAll(listOf("delay", "d")).withOptionalArg()!!.ofType(Long::class.java).defaultsTo(50)
 val PrefixOption: ArgumentAcceptingOptionSpec<String> = OptionParser.accepts("prefix").withOptionalArg()!!.defaultsTo("")
+val BrandOption: ArgumentAcceptingOptionSpec<String> = OptionParser.accepts("brand").withOptionalArg()!!.defaultsTo("KtBots")
