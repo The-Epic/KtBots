@@ -1,5 +1,6 @@
 package xyz.epicebic.ktbots
 
+import io.netty.channel.EventLoop
 import net.kyori.adventure.key.Key
 import org.geysermc.mcprotocollib.auth.SessionService
 import org.geysermc.mcprotocollib.network.Session
@@ -13,19 +14,29 @@ import org.geysermc.mcprotocollib.protocol.MinecraftProtocol
 import org.geysermc.mcprotocollib.protocol.data.game.ClientCommand
 import org.geysermc.mcprotocollib.protocol.packet.common.serverbound.ServerboundCustomPayloadPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundLoginPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundTickingStatePacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerCombatKillPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerPositionPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.ServerboundClientCommandPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.ServerboundClientTickEndPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.level.ServerboundAcceptTeleportationPacket
 import org.geysermc.mcprotocollib.protocol.packet.login.clientbound.ClientboundLoginFinishedPacket
 import org.slf4j.LoggerFactory
 import java.net.InetSocketAddress
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.TimeUnit
 
 class Bot(@get:JvmName("botName") val name: String, address: InetSocketAddress, val brand: ByteArray, val latch: CountDownLatch) : Thread() {
   private val logger = LoggerFactory.getLogger(this::class.java)
 
   private val client: ClientNetworkSession
+
+  private var eventLoop: EventLoop? = null
+  private var tickThread: ScheduledFuture<*>? = null
+
+  private var msPerTick: Float = 50f
+  private var tickingFrozen: Boolean = false
 
   init {
     val protocol = MinecraftProtocol(name)
@@ -42,6 +53,8 @@ class Bot(@get:JvmName("botName") val name: String, address: InetSocketAddress, 
         when (packet) {
           is ClientboundLoginFinishedPacket -> {
             session.send(ServerboundCustomPayloadPacket(Key.key("brand"), brand))
+            eventLoop = client.channel.eventLoop()
+            updateTickRate(20f, false)
           }
 
           is ClientboundLoginPacket -> {
@@ -62,6 +75,10 @@ class Bot(@get:JvmName("botName") val name: String, address: InetSocketAddress, 
               )
             )
           }
+
+          is ClientboundTickingStatePacket -> {
+            updateTickRate(packet.tickRate, packet.isFrozen)
+          }
         }
       }
 
@@ -76,4 +93,18 @@ class Bot(@get:JvmName("botName") val name: String, address: InetSocketAddress, 
   }
 
   fun disconnect() = client.disconnect("")
+
+  private fun updateTickRate(rate: Float, frozen: Boolean) {
+    tickThread?.cancel(false)
+    this.tickingFrozen = frozen
+
+    val rate = rate.coerceIn(1f, 10000f)
+    msPerTick = 1000f / rate
+    tickThread = eventLoop?.scheduleAtFixedRate(this::tick, msPerTick.toLong(), msPerTick.toLong(), TimeUnit.MILLISECONDS)
+  }
+
+  private fun tick() {
+    this.client.send(ServerboundClientTickEndPacket.INSTANCE)
+  }
+
 }
