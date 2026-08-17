@@ -3,8 +3,9 @@ plugins {
   id("com.gradleup.shadow") version "9.6.1"
 }
 
+val minecraft = "1.21.11"
 group = "xyz.epicebic"
-version = "1.0.0-SNAPSHOT"
+version = "1.0.0+$minecraft-SNAPSHOT"
 
 repositories {
   mavenCentral()
@@ -13,7 +14,7 @@ repositories {
 
 dependencies {
   testImplementation(kotlin("test"))
-  implementation("org.geysermc.mcprotocollib:protocol:1.21.11-1")
+  implementation("org.geysermc.mcprotocollib:protocol:$minecraft-1")
   implementation("ch.qos.logback:logback-classic:1.5.37")
   implementation("org.jline:jline:4.0.0")
   implementation("net.sf.jopt-simple:jopt-simple:6.0-alpha-3")
